@@ -8,6 +8,10 @@ var UI = require('ui');
 var ajax = require('ajax');
 // This is just used for tuple x,y/width/height specification
 var vector2 = require('vector2');
+// Accelerometer utilities
+var Accel = require('ui/accel');
+// Vibrate the watch
+var Vibe = require('ui/vibe');
 
 // Show splash screen while waiting for data
 var splashWindow = new UI.Window();
@@ -60,9 +64,9 @@ ajax(
     // Create an array of Menu items
     var menuItems = parseFeed(data, 10);
     // Check the items are extracted OK
-    for(var i = 0; i < menuItems.length; i++) {
-      console.log(menuItems[i].title + ' | ' + menuItems[i].subtitle);
-    }
+    // for(var i = 0; i < menuItems.length; i++) {
+    //   console.log(menuItems[i].title + ' | ' + menuItems[i].subtitle);
+    // }
     // Construct Menu to show to user
     var resultsMenu = new UI.Menu({
       sections: [{
@@ -106,6 +110,19 @@ ajax(
         subtitle:e.item.subtitle,
         body: content
       });
+      
+      // Register for 'tap' events
+      resultsMenu.on('accelTap', function(e) {
+        console.log('TAP!');
+        console.log('axis: ' + e.axis + ', direction:' + e.direction);
+        // Create an array of Menu items
+        var newItems = parseFeed(data, 10);
+      
+        // Update the Menu's first section
+        resultsMenu.items(0, newItems);
+        // Notify the user
+        Vibe.vibrate('short');
+      });
       detailCard.show();
     });
   },
@@ -113,6 +130,9 @@ ajax(
     console.log('Download failed: ' + error);
   }
 );
+
+// Prepare the accelerometer
+Accel.init();
 
 
 // Add to slashWindow and show
