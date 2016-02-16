@@ -12,7 +12,7 @@ var vector2 = require('vector2');
 // Show splash screen while waiting for data
 var splashWindow = new UI.Window();
 var APPID = '5d03929aca48a14cb15264b52293cb8f';
-var CITY = 'Seattle';
+var CITY = 'Boston';
 var URL = 'http://api.openweathermap.org/data/2.5/forecast?q=' +
            CITY + '&appid=' + APPID;
 
@@ -78,6 +78,36 @@ ajax(
     // If not hidden back button should have result in 
     // splash window display.
     splashWindow.hide();
+    
+    resultsMenu.on('select', function (e) {
+      // Get the forecast. Menu is indexed as returned data
+      var forecast = data.list[e.itemIndex];
+      
+      // Assemble body string
+      var content = data.list[e.itemIndex].weather[0].description;
+      
+      // Capitalize first letter
+      content = content.charAt(0).toUpperCase() + 
+                content.substring(1);
+      
+      // Add temperature, pressure etc. 
+      // Add temperature, pressure etc
+      content += '\nTemperature: ' + 
+                 Math.round(forecast.main.temp - 273.15) + '°C' +
+                 '\nPressure: ' + 
+                 Math.round(forecast.main.pressure) + ' mbar' +
+                 '\nWind: ' + 
+                 Math.round(forecast.wind.speed) + ' mph, ' + 
+                 Math.round(forecast.wind.deg) + '°';
+      
+      // Create the Card for detailed view
+      var detailCard = new UI.Card({
+        title:'Details',
+        subtitle:e.item.subtitle,
+        body: content
+      });
+      detailCard.show();
+    });
   },
   function(error) {
     console.log('Download failed: ' + error);
